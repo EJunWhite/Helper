@@ -1,0 +1,6 @@
+framework module Pods_Helper {
+  umbrella header "Pods-Helper-umbrella.h"
+
+  export *
+  module * { export * }
+}
