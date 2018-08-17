@@ -21,5 +21,12 @@ class GalleryCollectionViewCell: UICollectionViewCell {
         
         galleryCollectionViewCallBack.selectedCell(selected: selectBtn.isSelected, index: index)
     }
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        self.layer.masksToBounds = true
+    }
+    
+    
 }
 

@@ -2,7 +2,14 @@
 
 ## v1.x Releases
 
-- `v1.x` Releases - [v1.0](#10) | [v1.1](#11) | [v1.2](#12)
+- `v1.x` Releases - [v1.0](#10) | [v1.1](#11) | [v1.2](#12) | [v1.3](#13)
+
+### v1.3
+
+Update date : 2018.8.17
+
+1. resolve Memory leak but it is wrong
+
 
 ### v1.2
 

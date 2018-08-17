@@ -15,7 +15,7 @@ protocol OnTapCallBack {
 
 class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     var myCollectionView: UICollectionView!
-    var imgArray = [UIImage]()
+    var imgPathArray = [String]()
     var passedContentOffset = IndexPath()
     var currentIndexPath = IndexPath()
 
@@ -53,13 +53,15 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imgArray.count
+        return imgPathArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ImagePreviewFullViewCell
         
-        cell.imgView.image = imgArray[indexPath.row]
+        let image = UIImage(contentsOfFile: imgPathArray[indexPath.row])!
+        
+        cell.imgView.image = image
         cell.ontap = self
         
         UIGraphicsBeginImageContextWithOptions(cell.imgView.frame.size, true, 1.0)
@@ -86,6 +88,9 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         myCollectionView.collectionViewLayout.invalidateLayout()
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+    }
+    
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         
@@ -104,25 +109,27 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         
         getCoordinateView("두번째 ", myCollectionView, false)
     }
+    
+    
 
     func getCoordinateView(_ msg:String, _ collectionView: UICollectionView, _ isBool: Bool) {
         if isBool {
-            print("STATUS BAR HIDE ==============================================================================================")
+            log.info("STATUS BAR HIDE ==============================================================================================")
         } else {
-            print("STATUS BAR SHOW==============================================================================================")
+            log.info("STATUS BAR SHOW==============================================================================================")
         }
-        print("[START][contentOffset] ->")
-        print("\(msg)  collectionView.contentOffset.x ::::: \(collectionView.contentOffset.x)")
-        print("\(msg)  collectionView.contentOffset.Y ::::: \(collectionView.contentOffset.y)")
-        print("[START][contentSize] ->")
-        print("\(msg)  collectionView.contentSize.width ::::: \(collectionView.contentSize.width)")
-        print("\(msg)  collectionView.contentSize.height ::::: \(collectionView.contentSize.height)")
+        log.info("[START][contentOffset] ->")
+        log.info("\(msg)  collectionView.contentOffset.x ::::: \(collectionView.contentOffset.x)")
+        log.info("\(msg)  collectionView.contentOffset.Y ::::: \(collectionView.contentOffset.y)")
+        log.info("[START][contentSize] ->")
+        log.info("\(msg)  collectionView.contentSize.width ::::: \(collectionView.contentSize.width)")
+        log.info("\(msg)  collectionView.contentSize.height ::::: \(collectionView.contentSize.height)")
         if #available(iOS 11.0, *) {
-            print("[START][adjustedContentInset] ->")
-            print("\(msg)  collectionView.adjustedContentInset.top ::::: \(collectionView.adjustedContentInset.top)")
-            print("\(msg)  collectionView.adjustedContentInset.left ::::: \(collectionView.adjustedContentInset.left)")
-            print("\(msg)  collectionView.adjustedContentInset.bottom ::::: \(collectionView.adjustedContentInset.bottom)")
-            print("\(msg)  collectionView.adjustedContentInset.right ::::: \(collectionView.adjustedContentInset.right)")
+            log.info("[START][adjustedContentInset] ->")
+            log.info("\(msg)  collectionView.adjustedContentInset.top ::::: \(collectionView.adjustedContentInset.top)")
+            log.info("\(msg)  collectionView.adjustedContentInset.left ::::: \(collectionView.adjustedContentInset.left)")
+            log.info("\(msg)  collectionView.adjustedContentInset.bottom ::::: \(collectionView.adjustedContentInset.bottom)")
+            log.info("\(msg)  collectionView.adjustedContentInset.right ::::: \(collectionView.adjustedContentInset.right)")
         }
     }
 }
