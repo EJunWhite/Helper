@@ -38,7 +38,6 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         myCollectionView.dataSource = self
         myCollectionView.register(ImagePreviewFullViewCell.self, forCellWithReuseIdentifier: "Cell")
         myCollectionView.isPagingEnabled = true
-        
         myCollectionView.autoresizingMask = UIViewAutoresizing(rawValue: UIViewAutoresizing.RawValue(UInt8(UIViewAutoresizing.flexibleWidth.rawValue) | UInt8(UIViewAutoresizing.flexibleHeight.rawValue)))
         
         let row = CGFloat(passedContentOffset.row)
@@ -56,6 +55,11 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         return imgPathArray.count
     }
     
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ImagePreviewFullViewCell
+        cell.isHidden = true
+    }
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ImagePreviewFullViewCell
         
@@ -64,6 +68,10 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         cell.imgView.image = image
         cell.ontap = self
         
+        var imgData: NSData = NSData(data: UIImageJPEGRepresentation((cell.imgView.image)!, 1)!)
+        var imageSize: Int = imgData.length
+        log.info("index : \(indexPath.row) section :\(indexPath.section) width : \(image.size.width) height : \(image.size.height) size of image in KB: \(imageSize / 1024) ")
+        
         UIGraphicsBeginImageContextWithOptions(cell.imgView.frame.size, true, 1.0)
         
         return cell
@@ -71,9 +79,6 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         self.currentIndexPath = indexPath
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
     }
     
     override func viewWillLayoutSubviews() {
@@ -109,8 +114,6 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         
         getCoordinateView("두번째 ", myCollectionView, false)
     }
-    
-    
 
     func getCoordinateView(_ msg:String, _ collectionView: UICollectionView, _ isBool: Bool) {
         if isBool {
@@ -147,7 +150,6 @@ extension GalleryDetailViewController: OnTapCallBack {
         self.myCollectionView.reloadData()
     }
 }
-
 
 class ImagePreviewFullViewCell: UICollectionViewCell, UIScrollViewDelegate {
     var scrollImg: UIScrollView!

@@ -17,6 +17,9 @@ class GalleryCollectionViewCell: UICollectionViewCell {
     var galleryCollectionViewCallBack: GalleryCollectionViewCallBack!
     
     @IBAction func selectedBtn(_ sender: Any) {
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds=true
+        
         selectBtn.isSelected = !selectBtn.isSelected
         
         galleryCollectionViewCallBack.selectedCell(selected: selectBtn.isSelected, index: index)

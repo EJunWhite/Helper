@@ -25,7 +25,7 @@ let log: XCGLogger = {
     systemDestination.showFunctionName = true
     systemDestination.showThreadName = false
     systemDestination.showLevel = false
-    systemDestination.showFileName = false
+    systemDestination.showFileName =  true
     systemDestination.showLineNumber = false
     systemDestination.showDate = false
     

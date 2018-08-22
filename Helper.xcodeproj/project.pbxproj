@@ -48,6 +48,7 @@
 		BFD80AD720AAA433001AC28D /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFD80AD620AAA433001AC28D /* SettingViewController.swift */; };
 		BFD80ADC20AAA665001AC28D /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFD80ADB20AAA665001AC28D /* UserManager.swift */; };
 		BFD80ADE20AAA82E001AC28D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFD80ADD20AAA82E001AC28D /* ViewController.swift */; };
+		BFE383AB2126BDEC001C5C1E /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE383AA2126BDEC001C5C1E /* UIImage.swift */; };
 		DF6C62AE20AFDF0800BFD9F2 /* StringUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6C62AD20AFDF0800BFD9F2 /* StringUtil.swift */; };
 		F37671380FF04B74F27ADE2C /* Pods_HelperUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58234E724250AAAAC4ADF184 /* Pods_HelperUITests.framework */; };
 /* End PBXBuildFile section */
@@ -178,6 +179,7 @@
 		BFD80AD620AAA433001AC28D /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		BFD80ADB20AAA665001AC28D /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		BFD80ADD20AAA82E001AC28D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		BFE383AA2126BDEC001C5C1E /* UIImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		DC11D70BDA6B496BC8002E7B /* Pods-HelperTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HelperTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-HelperTests/Pods-HelperTests.release.xcconfig"; sourceTree = "<group>"; };
 		DF6C62AD20AFDF0800BFD9F2 /* StringUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtil.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -285,6 +287,7 @@
 		BFC3D2AA20A2C839008696D6 /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				BFE383A92126BDD2001C5C1E /* Extension */,
 				BFCAD88D212259F100B9C716 /* Core */,
 				BF10B72920AC187B0040847D /* Util */,
 				BFD80ADA20AAA627001AC28D /* Manager */,
@@ -426,6 +429,15 @@
 				BFD80ADB20AAA665001AC28D /* UserManager.swift */,
 			);
 			path = Manager;
+			sourceTree = "<group>";
+		};
+		BFE383A92126BDD2001C5C1E /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				BFE383AA2126BDEC001C5C1E /* UIImage.swift */,
+			);
+			name = Extension;
+			path = "New Group";
 			sourceTree = "<group>";
 		};
 		D0F8F642A8085034EEA640B1 /* Frameworks */ = {
@@ -767,6 +779,7 @@
 				BFC802DB20AD22220032F49A /* UserDefaultPINRepository.swift in Sources */,
 				BFD80AC920AAA05D001AC28D /* UIImage+Extension.swift in Sources */,
 				BFD80ADE20AAA82E001AC28D /* ViewController.swift in Sources */,
+				BFE383AB2126BDEC001C5C1E /* UIImage.swift in Sources */,
 				BFD80ACB20AAA05D001AC28D /* UIViewController+Extension.swift in Sources */,
 				BFD80ADC20AAA665001AC28D /* UserManager.swift in Sources */,
 				BFC802D920AD21930032F49A /* PINConfiguration.swift in Sources */,

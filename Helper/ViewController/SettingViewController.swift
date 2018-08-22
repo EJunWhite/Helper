@@ -62,7 +62,6 @@ class SettingViewController: SuperViewController {
         if hasPasscode {
             let repo = UserDefaultsPINRepository()
             let config = PINConfiguration(repository: repo)
-            
             let passcodeLock = PasscodeLockViewController(state: .changePasscode, configuration: config)
             
             present(passcodeLock, animated: true, completion: nil)
