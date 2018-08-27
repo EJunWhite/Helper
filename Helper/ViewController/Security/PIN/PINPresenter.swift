@@ -2,7 +2,7 @@
 //  PINPresenter.swift
 //  Helper
 //
-//  Created by Jun on 2018. 5. 17..
+//  Created by EJun on 2018. 5. 17..
 //  Copyright © 2018년 EJun. All rights reserved.
 //
 

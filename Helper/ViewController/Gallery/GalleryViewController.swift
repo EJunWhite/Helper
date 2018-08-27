@@ -2,7 +2,7 @@
 //  GalleryViewController.swift
 //  Helper
 //
-//  Created by Jun on 2018. 5. 21..
+//  Created by EJun on 2018. 5. 21..
 //  Copyright © 2018년 EJun. All rights reserved.
 //
 

@@ -2,7 +2,7 @@
 //  ImageUtil.swift
 //  Helper
 //
-//  Created by Jun on 2018. 5. 23..
+//  Created by EJun on 2018. 5. 23..
 //  Copyright © 2018년 EJun. All rights reserved.
 //
 

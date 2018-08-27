@@ -2,7 +2,7 @@
 //  GalleryCollectionViewCell.swift
 //  Helper
 //
-//  Created by Jun on 2018. 5. 18..
+//  Created by EJun on 2018. 5. 18..
 //  Copyright © 2018년 EJun. All rights reserved.
 //
 

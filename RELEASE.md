@@ -8,7 +8,7 @@
 
 Update date : 2018.8.17
 
-1. resolve Memory leak but it is wrong
+1. resolve Memory leak but it is wrong, so after that, I will resolve, perfectly.
 
 
 ### v1.2
