@@ -151,7 +151,6 @@ class LocalGalleryViewController: SuperViewController {
         
         self.getImageInDocument()
         
-//        collectionView.autoresizingMask = UIViewAutoresizing(rawValue: UIViewAutoresizing.RawValue(UInt8(UIViewAutoresizing.flexibleWidth.rawValue) | UInt8(UIViewAutoresizing.flexibleHeight.rawValue)))
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -240,12 +239,12 @@ class LocalGalleryViewController: SuperViewController {
                         }
                     }
                     
-                    if self.imageList.count > 0  {
-                        DispatchQueue.main.async {
-                            self.hideIndicator()
-                            print("This is run on the main queue, after the previous code in outer block")
+                    DispatchQueue.main.async {
+                        self.hideIndicator()
+                        if self.imageList.count > 0  {
                             self.collectionView.reloadData()
                         }
+                        print("This is run on the main queue, after the previous code in outer block")
                     }
                     
 //                    log.info("documents :: \(documents.count)")
