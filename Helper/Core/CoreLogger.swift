@@ -2,8 +2,8 @@
 //  CoreLogger.swift
 //  Helper
 //
-//  Created by Jun on 2018. 8. 14..
-//  Copyright © 2018년 SmartInfini. All rights reserved.
+//  Created by EJun on 2018. 8. 14..
+//  Copyright © 2018년 EJun. All rights reserved.
 //
 
 import Foundation
@@ -25,7 +25,7 @@ let log: XCGLogger = {
     systemDestination.showFunctionName = true
     systemDestination.showThreadName = false
     systemDestination.showLevel = false
-    systemDestination.showFileName = false
+    systemDestination.showFileName =  true
     systemDestination.showLineNumber = false
     systemDestination.showDate = false
     

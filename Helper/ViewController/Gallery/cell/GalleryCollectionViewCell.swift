@@ -2,7 +2,7 @@
 //  GalleryCollectionViewCell.swift
 //  Helper
 //
-//  Created by Jun on 2018. 5. 18..
+//  Created by EJun on 2018. 5. 18..
 //  Copyright © 2018년 EJun. All rights reserved.
 //
 
@@ -17,9 +17,19 @@ class GalleryCollectionViewCell: UICollectionViewCell {
     var galleryCollectionViewCallBack: GalleryCollectionViewCallBack!
     
     @IBAction func selectedBtn(_ sender: Any) {
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds=true
+        
         selectBtn.isSelected = !selectBtn.isSelected
         
         galleryCollectionViewCallBack.selectedCell(selected: selectBtn.isSelected, index: index)
     }
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        self.layer.masksToBounds = true
+    }
+    
+    
 }
 

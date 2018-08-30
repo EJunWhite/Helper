@@ -2,7 +2,7 @@
 //  GalleryDetailViewController.swift
 //  Helper
 //
-//  Created by Jun on 2018. 5. 21..
+//  Created by EJun on 2018. 5. 21..
 //  Copyright © 2018년 EJun. All rights reserved.
 //
 
@@ -15,7 +15,8 @@ protocol OnTapCallBack {
 
 class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     var myCollectionView: UICollectionView!
-    var imgArray = [UIImage]()
+    lazy var imgPathArray = [String]()
+    lazy var imageList = [UIImage]()
     var passedContentOffset = IndexPath()
     var currentIndexPath = IndexPath()
 
@@ -25,7 +26,7 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         // Do any additional setup after loading the view.
         self.navigationController?.isToolbarHidden = true
         
-        self.view.backgroundColor = UIColor.red
+        self.view.backgroundColor = UIColor.white
         
         let layout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
@@ -33,45 +34,87 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         layout.minimumLineSpacing = 0
         layout.scrollDirection = .horizontal
         
-        myCollectionView = UICollectionView(frame: self.view.frame, collectionViewLayout: layout)
-        myCollectionView.delegate = self
-        myCollectionView.dataSource = self
-        myCollectionView.register(ImagePreviewFullViewCell.self, forCellWithReuseIdentifier: "Cell")
-        myCollectionView.isPagingEnabled = true
+        self.myCollectionView = UICollectionView(frame: self.view.frame, collectionViewLayout: layout)
+        // FIXME: CollectionView is White color
+        self.myCollectionView.backgroundColor = UIColor.white
+        self.myCollectionView.delegate = self
+        self.myCollectionView.dataSource = self
+        self.myCollectionView.register(ImagePreviewFullViewCell.self, forCellWithReuseIdentifier: "Cell")
+        self.myCollectionView.isPagingEnabled = true
+        self.myCollectionView.autoresizingMask = UIViewAutoresizing(rawValue: UIViewAutoresizing.RawValue(UInt8(UIViewAutoresizing.flexibleWidth.rawValue) | UInt8(UIViewAutoresizing.flexibleHeight.rawValue)))
         
-        myCollectionView.autoresizingMask = UIViewAutoresizing(rawValue: UIViewAutoresizing.RawValue(UInt8(UIViewAutoresizing.flexibleWidth.rawValue) | UInt8(UIViewAutoresizing.flexibleHeight.rawValue)))
-        
-        let row = CGFloat(passedContentOffset.row)
+        let row = CGFloat(self.passedContentOffset.row)
         
         let pageSize = self.view.bounds.size
         let contentOffset = CGPoint(x: (pageSize.width * row), y: 0)
+        
         self.myCollectionView.setContentOffset(contentOffset, animated: false)
         
-        self.view.addSubview(myCollectionView)
+        self.view.addSubview(self.myCollectionView)
+        self.getCoordinateView("최초", self.myCollectionView, false)
         
-        getCoordinateView("최초", myCollectionView, false)
+        self.makeImageList()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        // FIXME: remove all of list because memory leak problem
+        self.imgPathArray.removeAll()
+        self.imageList.removeAll(keepingCapacity: false)
+        self.imageList.removeAll()
+        self.myCollectionView.removeFromSuperview()
+        
+        // FIXME: make the memory leak, when it removes
+        self.myCollectionView = nil
+    }
+    
+    func makeImageList() {
+        if imageList.count <= 0 {
+            
+            self.showIndicator()
+            log.info("Image is Empty")
+            let count = self.imgPathArray.count
+            var index:Int = 0
+            
+            DispatchQueue.main.async {
+                for imagePath in self.imgPathArray {
+                    let image = UIImage(contentsOfFile: imagePath)
+                    self.imageList.append(ImageManager.resizeImage(image: image!, targetSize: CGSize(width: (image?.size.width)!, height: (image?.size.height)!)))
+                    print("This is run on the main queue, after the previous code in outer block")
+                    
+                    index += 1
+                    
+                    if count == index {
+                        self.myCollectionView.reloadData()
+                        self.hideIndicator()
+                    }
+                }// for
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imgArray.count
+        return imageList.count
     }
     
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ImagePreviewFullViewCell
+        
+        cell.isHidden = true
+    }
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ImagePreviewFullViewCell
         
-        cell.imgView.image = imgArray[indexPath.row]
+        cell.imgView.image = imageList[indexPath.row]
         cell.ontap = self
-        
-        UIGraphicsBeginImageContextWithOptions(cell.imgView.frame.size, true, 1.0)
         
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         self.currentIndexPath = indexPath
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
     }
     
     override func viewWillLayoutSubviews() {
@@ -107,22 +150,22 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
 
     func getCoordinateView(_ msg:String, _ collectionView: UICollectionView, _ isBool: Bool) {
         if isBool {
-            print("STATUS BAR HIDE ==============================================================================================")
+            log.info("STATUS BAR HIDE ==============================================================================================")
         } else {
-            print("STATUS BAR SHOW==============================================================================================")
+            log.info("STATUS BAR SHOW==============================================================================================")
         }
-        print("[START][contentOffset] ->")
-        print("\(msg)  collectionView.contentOffset.x ::::: \(collectionView.contentOffset.x)")
-        print("\(msg)  collectionView.contentOffset.Y ::::: \(collectionView.contentOffset.y)")
-        print("[START][contentSize] ->")
-        print("\(msg)  collectionView.contentSize.width ::::: \(collectionView.contentSize.width)")
-        print("\(msg)  collectionView.contentSize.height ::::: \(collectionView.contentSize.height)")
+        log.info("[START][contentOffset] ->")
+        log.info("\(msg)  collectionView.contentOffset.x ::::: \(collectionView.contentOffset.x)")
+        log.info("\(msg)  collectionView.contentOffset.Y ::::: \(collectionView.contentOffset.y)")
+        log.info("[START][contentSize] ->")
+        log.info("\(msg)  collectionView.contentSize.width ::::: \(collectionView.contentSize.width)")
+        log.info("\(msg)  collectionView.contentSize.height ::::: \(collectionView.contentSize.height)")
         if #available(iOS 11.0, *) {
-            print("[START][adjustedContentInset] ->")
-            print("\(msg)  collectionView.adjustedContentInset.top ::::: \(collectionView.adjustedContentInset.top)")
-            print("\(msg)  collectionView.adjustedContentInset.left ::::: \(collectionView.adjustedContentInset.left)")
-            print("\(msg)  collectionView.adjustedContentInset.bottom ::::: \(collectionView.adjustedContentInset.bottom)")
-            print("\(msg)  collectionView.adjustedContentInset.right ::::: \(collectionView.adjustedContentInset.right)")
+            log.info("[START][adjustedContentInset] ->")
+            log.info("\(msg)  collectionView.adjustedContentInset.top ::::: \(collectionView.adjustedContentInset.top)")
+            log.info("\(msg)  collectionView.adjustedContentInset.left ::::: \(collectionView.adjustedContentInset.left)")
+            log.info("\(msg)  collectionView.adjustedContentInset.bottom ::::: \(collectionView.adjustedContentInset.bottom)")
+            log.info("\(msg)  collectionView.adjustedContentInset.right ::::: \(collectionView.adjustedContentInset.right)")
         }
     }
 }
@@ -130,6 +173,7 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
 extension GalleryDetailViewController: OnTapCallBack {
     func onetap(isTap: Bool) {
         UIApplication.shared.setStatusBarHidden(isTap, with: UIStatusBarAnimation.none)
+        
         self.navigationController?.isNavigationBarHidden = isTap
         
         let row = CGFloat(currentIndexPath.row)
@@ -140,7 +184,6 @@ extension GalleryDetailViewController: OnTapCallBack {
         self.myCollectionView.reloadData()
     }
 }
-
 
 class ImagePreviewFullViewCell: UICollectionViewCell, UIScrollViewDelegate {
     var scrollImg: UIScrollView!
@@ -175,7 +218,15 @@ class ImagePreviewFullViewCell: UICollectionViewCell, UIScrollViewDelegate {
     }
     
     @objc func handleOndTapScrollView(recognizer: UITapGestureRecognizer) {
-        isTap = !isTap
+        let hidden = UIApplication.shared.isStatusBarHidden
+        
+        if hidden {
+            isTap = false
+        } else {
+            isTap = true
+        }
+        
+        log.info("isTap :\(isTap)")
         
         ontap.onetap(isTap: isTap)
     }

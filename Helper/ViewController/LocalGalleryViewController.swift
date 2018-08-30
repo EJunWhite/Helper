@@ -2,7 +2,7 @@
 //  GalleryViewController.swift
 //  Helper
 //
-//  Created by Jun on 2018. 5. 16..
+//  Created by EJun on 2018. 5. 16..
 //  Copyright © 2018년 EJun. All rights reserved.
 //
 import Foundation
@@ -10,11 +10,13 @@ import UIKit
 import Photos
 import CoreGraphics
 
+
 class LocalGalleryViewController: SuperViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var trashBtnItem: UIBarButtonItem!
     
     var imageList:[UIImage] = [UIImage]()
+    var imagePathList:[String] = [String]()
     var pickerController = UIImagePickerController()
     var isSelect:Bool = false
     var deleteList:[IndexPath] = []
@@ -23,9 +25,10 @@ class LocalGalleryViewController: SuperViewController {
     @IBAction func addPicture(_ sender: UIBarButtonItem) {
         let optionMenu = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let albumAction = UIAlertAction(title: "앨범", style: .default, handler: {
-            (alert: UIAlertAction!) -> Void in
-            log.info("File Deleted")
             
+            (alert: UIAlertAction!) -> Void in
+            
+            log.info("앨범")
             /// Photo view 열기
             func goToPhotoController() {
                 self.pickerController.sourceType = .photoLibrary
@@ -144,17 +147,36 @@ class LocalGalleryViewController: SuperViewController {
         super.viewDidLoad()
         
         self.navigationController?.isToolbarHidden = false
+        self.automaticallyAdjustsScrollViewInsets = false
         
         self.getImageInDocument()
         
-        collectionView.autoresizingMask = UIViewAutoresizing(rawValue: UIViewAutoresizing.RawValue(UInt8(UIViewAutoresizing.flexibleWidth.rawValue) | UInt8(UIViewAutoresizing.flexibleHeight.rawValue)))
         collectionView.delegate = self
         collectionView.dataSource = self
     }
     
+    func loadImagesFromAlbum(folderName:String) -> [String]{
+        log.info("folderName :::: \(folderName)")
+        let nsDocumentDirectory = FileManager.SearchPathDirectory.documentDirectory
+        let nsUserDomainMask    = FileManager.SearchPathDomainMask.userDomainMask
+        let paths               = NSSearchPathForDirectoriesInDomains(nsDocumentDirectory, nsUserDomainMask, true)
+        var theItems = [String]()
+        if let dirPath          = paths.first
+        {
+            let imageURL = URL(fileURLWithPath: dirPath).appendingPathComponent(folderName)
+            
+            do {
+                theItems = try FileManager.default.contentsOfDirectory(atPath: imageURL.path)
+                return theItems
+            } catch let error as NSError {
+                print(error.localizedDescription)
+                return theItems
+            }
+        }
+        return theItems
+    }
+    
     func getImageInDocument() {
-        imageList = [UIImage]()
-        
         let fileManager = FileManager.default
 //        // Library Directory
 //        var urls_l = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask)
@@ -165,43 +187,118 @@ class LocalGalleryViewController: SuperViewController {
 //        // Temporary Directory
 //        let tempUrl = FileManager.default.temporaryDirectory
         
-        // Document Directory
-        var urls_d = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let imgManager = PHImageManager.default()
         
-        if let documentUrl = urls_d.first {
-            do {
-                log.info("urls_d :::: \(urls_d.debugDescription)")
-                var documents = try fileManager.contentsOfDirectory(atPath: documentUrl.absoluteString.replace(delim: "file:///", withString: ""))
-                let path = documentUrl.absoluteString.replace(delim: "file:///", withString: "")
-                var count = 0
-                
-                // Sorting
-                documents = documents.sorted(by: {(index0: String, index1: String) -> Bool in
-                    let a:Int? = Int(index0)
-                    let b:Int? = Int(index1)
+        let requestOptions = PHImageRequestOptions()
+        requestOptions.isSynchronous = true
+        requestOptions.deliveryMode = .highQualityFormat
+        
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors=[NSSortDescriptor(key:"creationDate", ascending: false)]
+        
+        let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        
+        self.showIndicator()
+        
+        DispatchQueue.global(qos: .background).async {
+            
+            // Document Directory
+            var urls_d = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+            
+            if let documentUrl = urls_d.first {
+                do {
+                    let url = documentUrl.absoluteString.replace(delim: "file:///", withString: "")
+                    var documents = try fileManager.contentsOfDirectory(atPath: documentUrl.absoluteString.replace(delim: "file:///", withString: ""))
+                    let path = documentUrl.absoluteString.replace(delim: "file:///", withString: "")
+                    
+                    // Sorting
+                    documents = documents.sorted(by: {(index0: String, index1: String) -> Bool in
+                        let a:Int? = Int(index0)
+                        let b:Int? = Int(index1)
 
-                    return a! < b!
-                })
-                
-                for item in documents {
-                    log.info("item :: \(item)")
-                    if fileManager.fileExists(atPath: path + item) {
-                        let imagePAth = (self.getDocumentsDirectory().absoluteString as NSString).appendingPathComponent(item)
-                        let imageData = NSData(contentsOfFile: path + item)
-                        let image = UIImage(contentsOfFile: path + item)!
-                        
-                        log.info("path :: \(path + item)")
-                        imageList.append(image)
+                        return a! < b!
+                    })
+                    
+                    for item in documents {
+                        if fileManager.fileExists(atPath: path + item) {
+                            let image = UIImage(contentsOfFile: path + item)!
+
+                            self.imagePathList.append(path + item)
+                            self.imageList.append(ImageManager.resizeImage(image: image, targetSize: CGSize(width: image.size.width / 5, height: image.size.height / 5)))
+                        }
                     }
+                    
+                    DispatchQueue.main.async {
+                        self.hideIndicator()
+                        if self.imageList.count > 0  {
+                            self.collectionView.reloadData()
+                        }
+                        print("This is run on the main queue, after the previous code in outer block")
+                    }
+                    
+//                    log.info("documents :: \(documents.count)")
+
+                    // Sorting
+//                    documents = documents.sorted(by: {(index0: String, index1: String) -> Bool in
+//                        let a:Int? = Int(index0)
+//                        let b:Int? = Int(index1)
+//
+//                        return a! < b!
+//                    })
+                    
+//                    log.info("documentUrl : \(documentUrl)")
+//                    for item in documents {
+//                        let url = URL(string: documentUrl.absoluteString + item)
+//                        PHPhotoLibrary.shared().performChanges({
+//                            let assetRequest = PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: url!)
+//                            let assetForDoc: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [(assetRequest?.placeholderForCreatedAsset?.localIdentifier)!], options: nil)
+//
+//                            print(assetForDoc)
+//                            print(assetForDoc.count)
+//
+//                        })
+//                    }
+                  
+//
+               
+                    
+//                    log.info("urls_d :::: \(urls_d.debugDescription)")
+//                    var documents = try fileManager.contentsOfDirectory(atPath: documentUrl.absoluteString.replace(delim: "file:///", withString: ""))
+//                    let path = documentUrl.absoluteString.replace(delim: "file:///", withString: "")
+//
+//                    // Sorting
+//                    documents = documents.sorted(by: {(index0: String, index1: String) -> Bool in
+//                        let a:Int? = Int(index0)
+//                        let b:Int? = Int(index1)
+//
+//                        return a! < b!
+//                    })
+//
+//                    for item in documents {
+//                        if fileManager.fileExists(atPath: path + item) {
+//                            let image = UIImage(contentsOfFile: path + item)!
+//
+//                            self.imagePathList.append(path + item)
+//                            self.imageList.append(self.resizeImage(image: image, targetSize: CGSize(width: image.size.width / 5, height: image.size.height / 5)))
+//                        }
+//                    }
+////
+//                    if self.imageList.count > 0  {
+//                        DispatchQueue.main.async {
+//                            print("This is run on the main queue, after the previous code in outer block")
+//                            self.collectionView.reloadData()
+//                        }
+//
+//
+//                    }
+                    
+                } catch {
+                    
                 }
-                
-                if imageList.count > 0  { collectionView.reloadData() }
-                
-            } catch {
-                
-            }
-        } // if
-        
+            } // if
+            
+        }
+
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -221,10 +318,14 @@ class LocalGalleryViewController: SuperViewController {
         super.didReceiveMemoryWarning()
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        self.collectionView.collectionViewLayout.invalidateLayout()
+    }
+    
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
-        
-        collectionView.collectionViewLayout.invalidateLayout()
     }
     
     @IBAction func selectAction(_ sender: Any) {
@@ -332,7 +433,12 @@ class LocalGalleryViewController: SuperViewController {
         self.navigationController?.toolbar.setItems(items, animated: true)
         isSelect = false
         
+//        for cell in self.collectionView.visibleCells {
+//            let indexPath = self.collectionView.indexPath(for: cell)
+//        }
+        
         self.collectionView.reloadData()
+//        self.collectionView.cellForItem(at: <#T##IndexPath#>).up
         self.deleteList.removeAll()
     }
 
@@ -347,24 +453,23 @@ protocol GalleryCollectionViewCallBack {
 
 // MARK: - <#UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout#>
 extension LocalGalleryViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return imageList.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GalleryCollectionViewCell", for: indexPath) as! GalleryCollectionViewCell
+        cell.isHidden = true
+//        log.info("end displaying index : \(cell.index.row) section :\(cell.index.section) index :\(indexPath)")
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "GalleryCollectionViewCell", for: indexPath) as! GalleryCollectionViewCell
         
         cell.imageView.image = imageList[indexPath.item]
-        cell.imageView.contentMode = .scaleAspectFill
         cell.index = indexPath
         cell.galleryCollectionViewCallBack = self
-        
-        var imgData: NSData = NSData(data: UIImageJPEGRepresentation((cell.imageView.image)!, 1)!)
-        var imageSize: Int = imgData.length
-        
-        log.info("index : \(cell.index.row) size of image in KB: \(imageSize / 1024) ")
-        
-        UIGraphicsBeginImageContextWithOptions(cell.imageView.frame.size, true, 1.0)
         
         if isSelect {
             cell.selectBtn.isHidden = false
@@ -373,7 +478,6 @@ extension LocalGalleryViewController: UICollectionViewDataSource, UICollectionVi
             cell.selectBtn.isHidden = true
         }
         
-        cell.clipsToBounds = true
         cell.isHidden = false
         
         return cell
@@ -384,7 +488,7 @@ extension LocalGalleryViewController: UICollectionViewDataSource, UICollectionVi
         if isSelect {
         } else {
             let vc = GalleryDetailViewController()
-            vc.imgArray = self.imageList
+            vc.imgPathArray = self.imagePathList
             
             vc.passedContentOffset = indexPath
             
@@ -401,7 +505,7 @@ extension LocalGalleryViewController: UICollectionViewDataSource, UICollectionVi
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 1.0
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 1.0
     }
@@ -444,39 +548,66 @@ extension LocalGalleryViewController: UIImagePickerControllerDelegate & UINaviga
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         /// doing...
         func doProcess() {
-            self.showIndicator()
-            
             DispatchQueue.main.asyncAfter(deadline: .now(), execute:{
+//                self.collectionView.reloadData()
                 if var image = info[UIImagePickerControllerOriginalImage] as? UIImage {
                     image = ImageUtil.imageOrientation(image)
+                    log.info("width ::\(image.size.width)")
+                    log.info("height ::\(image.size.height)")
                     
                     // Image Information
-                    let selectedIamgeSize: NSData = NSData(data: UIImageJPEGRepresentation(image, 1)!)
+//                    let selectedIamgeSize: NSData = NSData(data: UIImageJPEGRepresentation(image, 1)!)
+                    let selectedIamgeSize: NSData = NSData(data: UIImagePNGRepresentation(image)!)
                     let selectedImageSize:Int = selectedIamgeSize.length
-                    
+
                     let fileManager = FileManager.default
                     
+                    log.info("selectedImageSize ::\(selectedImageSize)")
+
                     if let data = UIImagePNGRepresentation(image) {
                         let time = self.getTimeName()
-                        var filename = self.getDocumentsDirectory().appendingPathComponent(time)
-                        
+//                        var filename = self.getDocumentsDirectory().appendingPathComponent("\(time).png")
+                        var filename = self.getDocumentsDirectory().appendingPathComponent("\(time)")
+
+                        log.info("filename ::\(filename)")
                         // Writing
                         try? data.write(to: filename)
+
+                        let path = filename.absoluteString.replace(delim: "file:///", withString: "")
                         
+                        let image = UIImage(contentsOfFile: path)!
+                        
+                        // Append imageList
+                        self.imageList.append(ImageManager.resizeImage(image: image, targetSize: CGSize(width: image.size.width / 5, height: image.size.height / 5)))
+                        
+                        // total imageList count
+                        let indexPath = IndexPath(
+                            item: self.imageList.count - 1,
+                            section: 0
+                        )
+                        
+                        // add item at collectionView and move at bottom in scroll
                         DispatchQueue.main.asyncAfter(deadline: .now(), execute: {
-                            let path = filename.absoluteString.replace(delim: "file:///", withString: "")
+                            self.collectionView?.performBatchUpdates({
+                                self.hideIndicator()
+                                
+                                //add Item at collectionView
+                                self.collectionView.insertItems(at: [indexPath])
+                            }, completion: nil)
                             
-                            if fileManager.fileExists(atPath: path) {
-                                self.getImageInDocument()
-                            }
-                            self.hideIndicator()
+                            // move scroll
+                            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
                         })
+                        
                     }// data
                 } // image
+                
             }) // Dispatch
         }// doProcess
         
         picker.dismiss(animated: true, completion: {
+            self.showIndicator()
+            
             doProcess()
         })
 

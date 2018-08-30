@@ -26,37 +26,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
-        debugPrint("applicationWillResignActive")
+        log.info("applicationWillResignActive")
     }
     
     /// Background mode, if it has background
     /// First(applicationWillResignActive) -> Second(applicationDidEnterBackground)
     /// - Parameter application: UIApplication
     func applicationDidEnterBackground(_ application: UIApplication) {
-        debugPrint("applicationDidEnterBackground")
+        log.info("applicationDidEnterBackground")
         pinPresenter.presentPasscodeLock()
     }
     
     func applicationDidFinishLaunching(_ application: UIApplication) {
-        debugPrint("applicationDidFinishLaunching")
+        log.info("applicationDidFinishLaunching")
     }
 
     /// Background mode, if it has background
     /// First(applicationWillResignActive) -> Second(applicationDidEnterBackground)
     /// - Parameter application: UIApplication
     func applicationWillEnterForeground(_ application: UIApplication) {
-        debugPrint("applicationWillEnterForeground")
+        log.info("applicationWillEnterForeground")
     }
     
     /// Foreground mode, if it has foreground -> The action is launching on top
     ///
     /// - Parameter application: UIApplication
     func applicationDidBecomeActive(_ application: UIApplication) {
-        debugPrint("applicationDidBecomeActive")
+        log.info("applicationDidBecomeActive")
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
-        debugPrint("applicationWillTerminate")
+        log.info("applicationWillTerminate")
         self.saveContext()
     }
     

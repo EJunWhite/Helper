@@ -2,7 +2,7 @@
 //  SettingViewController.swift
 //  Helper
 //
-//  Created by Jun on 2018. 5. 15..
+//  Created by EJun on 2018. 5. 15..
 //  Copyright © 2018년 EJun. All rights reserved.
 //
 import Foundation
@@ -62,7 +62,6 @@ class SettingViewController: SuperViewController {
         if hasPasscode {
             let repo = UserDefaultsPINRepository()
             let config = PINConfiguration(repository: repo)
-            
             let passcodeLock = PasscodeLockViewController(state: .changePasscode, configuration: config)
             
             present(passcodeLock, animated: true, completion: nil)
