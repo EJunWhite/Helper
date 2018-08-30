@@ -177,17 +177,6 @@ class LocalGalleryViewController: SuperViewController {
     }
     
     func getImageInDocument() {
-        if imageList.count > 0 {
-            imageList.removeAll()
-        }
-        
-        if imagePathList.count > 0 {
-            imagePathList.removeAll()
-        }
-        
-        imagePathList = [String]()
-        imageList = [UIImage]()
-        
         let fileManager = FileManager.default
 //        // Library Directory
 //        var urls_l = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask)
@@ -235,7 +224,7 @@ class LocalGalleryViewController: SuperViewController {
                             let image = UIImage(contentsOfFile: path + item)!
 
                             self.imagePathList.append(path + item)
-                            self.imageList.append(self.resizeImage(image: image, targetSize: CGSize(width: image.size.width / 5, height: image.size.height / 5)))
+                            self.imageList.append(ImageManager.resizeImage(image: image, targetSize: CGSize(width: image.size.width / 5, height: image.size.height / 5)))
                         }
                     }
                     
@@ -312,33 +301,6 @@ class LocalGalleryViewController: SuperViewController {
 
     }
 
-    func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
-        let size = image.size
-        
-        let widthRatio  = targetSize.width  / size.width
-        let heightRatio = targetSize.height / size.height
-        
-        // Figure out what our orientation is, and use that to form the rectangle
-        var newSize: CGSize
-        if(widthRatio > heightRatio) {
-            newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
-        } else {
-            newSize = CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
-        }
-        
-        // This is the rect that we've calculated out and this is what is actually used below
-        let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
-        
-        // Actually do the resizing to the rect using the ImageContext stuff
-//        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-        image.draw(in: rect)
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return newImage!
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         
@@ -616,7 +578,7 @@ extension LocalGalleryViewController: UIImagePickerControllerDelegate & UINaviga
                         let image = UIImage(contentsOfFile: path)!
                         
                         // Append imageList
-                        self.imageList.append(self.resizeImage(image: image, targetSize: CGSize(width: image.size.width / 5, height: image.size.height / 5)))
+                        self.imageList.append(ImageManager.resizeImage(image: image, targetSize: CGSize(width: image.size.width / 5, height: image.size.height / 5)))
                         
                         // total imageList count
                         let indexPath = IndexPath(

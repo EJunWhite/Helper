@@ -1,4 +1,3 @@
 # Helper
 
-This is 
-개인 사진을 담아 두는 어플리케이션입니다.
+This is a personal gallery

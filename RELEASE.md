@@ -8,8 +8,7 @@
 
 Update date : 2018.8.17
 
-1. resolve Memory leak but it is wrong, so after that, I will resolve, perfectly.
-
+1. [#1](https://github.com/DaeJunLee/Helper/issues/1#issue-355432991) resolved memory leak in list
 
 ### v1.2
 
