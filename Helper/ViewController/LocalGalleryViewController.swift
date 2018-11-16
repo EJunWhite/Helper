@@ -51,11 +51,11 @@ class LocalGalleryViewController: SuperViewController {
                     let internetUnavailableAlertController = UIAlertController (title: nil, message: "사진을 등록하려면 '사진' 접근권한을 허용해야 합니다.", preferredStyle: .alert)
                     
                     let settingsAction = UIAlertAction(title: "설정", style: .default) { (_) -> Void in
-                        let settingsUrl = NSURL(string:UIApplicationOpenSettingsURLString)
+                        let settingsUrl = NSURL(string:UIApplication.openSettingsURLString)
                         if let url = settingsUrl {
                             DispatchQueue.main.async {
                                 if #available(iOS 10.0, *) {
-                                    UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
+                                    UIApplication.shared.open(url as URL, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
                                 } else {
                                     UIApplication.shared.openURL(url as URL)
                                 } //(url as URL)
@@ -102,10 +102,10 @@ class LocalGalleryViewController: SuperViewController {
                 let internetUnavailableAlertController = UIAlertController (title: nil, message: "사진을 등록하려면 '비디오' 접근권한을 허용해야 합니다.", preferredStyle: .alert)
                 
                 let settingsAction = UIAlertAction(title: "설정", style: .default) { (_) -> Void in
-                    let settingsUrl = NSURL(string:UIApplicationOpenSettingsURLString)
+                    let settingsUrl = NSURL(string:UIApplication.openSettingsURLString)
                     if let url = settingsUrl {
                         if #available(iOS 10.0, *) {
-                            UIApplication.shared.open(url as URL, options: [:], completionHandler: nil)
+                            UIApplication.shared.open(url as URL, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: nil)
                         } else {
                             UIApplication.shared.openURL(url as URL)
                             // Fallback on earlier versions
@@ -409,10 +409,10 @@ class LocalGalleryViewController: SuperViewController {
     @objc func changeLeftBarButtonItemCancle() {
         // Bottom bar
         var items = self.navigationController?.toolbar.items
-        items![0] = UIBarButtonItem(title: "취소", style: UIBarButtonItemStyle.done, target: self, action: #selector(LocalGalleryViewController.changeLeftBarButtonItemSelected))
+        items![0] = UIBarButtonItem(title: "취소", style: UIBarButtonItem.Style.done, target: self, action: #selector(LocalGalleryViewController.changeLeftBarButtonItemSelected))
         if (items?.count == 1) {
-            items?.append(UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.flexibleSpace, target: self, action: nil))
-            items?.append(UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.trash, target: self, action: #selector(LocalGalleryViewController.actionTrashAboutPictures)))
+            items?.append(UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: self, action: nil))
+            items?.append(UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.trash, target: self, action: #selector(LocalGalleryViewController.actionTrashAboutPictures)))
         }
         self.navigationController?.toolbar.setItems(items, animated: true)
         
@@ -424,7 +424,7 @@ class LocalGalleryViewController: SuperViewController {
     @objc func changeLeftBarButtonItemSelected() {
         // Bottom bar
         var items = self.navigationController?.toolbar.items
-        items![0] = UIBarButtonItem(title: "선택", style: UIBarButtonItemStyle.done, target: self, action: #selector(LocalGalleryViewController.changeLeftBarButtonItemCancle))
+        items![0] = UIBarButtonItem(title: "선택", style: UIBarButtonItem.Style.done, target: self, action: #selector(LocalGalleryViewController.changeLeftBarButtonItemCancle))
         log.info("count :: \(items?.count)")
         if (items?.count == 3) {
             items?.remove(at: 2)
@@ -545,26 +545,29 @@ extension LocalGalleryViewController: UIImagePickerControllerDelegate & UINaviga
     /// - Parameters:
     ///   - picker: <#picker description#>
     ///   - info: <#info description#>
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+// Local variable inserted by Swift 4.2 migrator.
+let info = convertFromUIImagePickerControllerInfoKeyDictionary(info)
+
         /// doing...
         func doProcess() {
             DispatchQueue.main.asyncAfter(deadline: .now(), execute:{
 //                self.collectionView.reloadData()
-                if var image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+                if var image = info[convertFromUIImagePickerControllerInfoKey(UIImagePickerController.InfoKey.originalImage)] as? UIImage {
                     image = ImageUtil.imageOrientation(image)
                     log.info("width ::\(image.size.width)")
                     log.info("height ::\(image.size.height)")
                     
                     // Image Information
 //                    let selectedIamgeSize: NSData = NSData(data: UIImageJPEGRepresentation(image, 1)!)
-                    let selectedIamgeSize: NSData = NSData(data: UIImagePNGRepresentation(image)!)
+                    let selectedIamgeSize: NSData = NSData(data: image.pngData()!)
                     let selectedImageSize:Int = selectedIamgeSize.length
 
                     let fileManager = FileManager.default
                     
                     log.info("selectedImageSize ::\(selectedImageSize)")
 
-                    if let data = UIImagePNGRepresentation(image) {
+                    if let data = image.pngData() {
                         let time = self.getTimeName()
 //                        var filename = self.getDocumentsDirectory().appendingPathComponent("\(time).png")
                         var filename = self.getDocumentsDirectory().appendingPathComponent("\(time)")
@@ -638,4 +641,19 @@ extension LocalGalleryViewController: UIImagePickerControllerDelegate & UINaviga
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKeyDictionary(_ input: [UIImagePickerController.InfoKey: Any]) -> [String: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map {key, value in (key.rawValue, value)})
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
+	return input.rawValue
 }

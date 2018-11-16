@@ -18,7 +18,7 @@ class ActivityIndicator: NSObject {
         
         self.myActivityIndicator = UIActivityIndicatorView(frame:CGRect(x: 100, y: 100, width: 100, height: 100)) as UIActivityIndicatorView
         
-        self.myActivityIndicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyle.gray
+        self.myActivityIndicator.style = UIActivityIndicatorView.Style.gray
         self.myActivityIndicator.center = obj.view.center;
         
         obj.view.addSubview(myActivityIndicator);

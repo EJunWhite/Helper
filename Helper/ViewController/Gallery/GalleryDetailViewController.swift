@@ -41,7 +41,7 @@ class GalleryDetailViewController: SuperViewController, UICollectionViewDelegate
         self.myCollectionView.dataSource = self
         self.myCollectionView.register(ImagePreviewFullViewCell.self, forCellWithReuseIdentifier: "Cell")
         self.myCollectionView.isPagingEnabled = true
-        self.myCollectionView.autoresizingMask = UIViewAutoresizing(rawValue: UIViewAutoresizing.RawValue(UInt8(UIViewAutoresizing.flexibleWidth.rawValue) | UInt8(UIViewAutoresizing.flexibleHeight.rawValue)))
+        self.myCollectionView.autoresizingMask = UIView.AutoresizingMask(rawValue: UIView.AutoresizingMask.RawValue(UInt8(UIView.AutoresizingMask.flexibleWidth.rawValue) | UInt8(UIView.AutoresizingMask.flexibleHeight.rawValue)))
         
         let row = CGFloat(self.passedContentOffset.row)
         

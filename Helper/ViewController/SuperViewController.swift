@@ -37,13 +37,13 @@ class SuperViewController: UIViewController {
     // MARK: Show Activity Indicator
     func showIndicator() {
         self.activityIndicator = ActivityIndicator().StartActivityIndicator(obj: self)
-        self.activityIndicator.activityIndicatorViewStyle = .gray
+        self.activityIndicator.style = .gray
     }
     
     // MARK: Show Activity Indicator
     func showIndicator(obj: UIViewController) {
         self.activityIndicator = ActivityIndicator().StartActivityIndicator(obj: obj.self)
-        self.activityIndicator.activityIndicatorViewStyle = .gray
+        self.activityIndicator.style = .gray
     }
     
     // MARK: Hide Activity Indicator
